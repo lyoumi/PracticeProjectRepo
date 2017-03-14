@@ -22,9 +22,7 @@ public class TestTask implements EntryPoint {
         button.getElement().getStyle().setTop(350, Style.Unit.PX);
         button.getElement().getStyle().setLeft((600), Style.Unit.PX);
         RootPanel.get().add(panel);
-//        button.setStyleName("");
         button.addClickHandler(event -> {
-//            int u = (int) (Math.random()*6);
             if (b){
                 RootPanel.getBodyElement().getStyle().setBackgroundColor("RED");
             }else {
@@ -34,10 +32,4 @@ public class TestTask implements EntryPoint {
 
         });
     }
-
-    int randomizer(){
-        System.out.println((int) (Math.random()*6));
-        return (int) (Math.random()*6);
-    }
-
 }
