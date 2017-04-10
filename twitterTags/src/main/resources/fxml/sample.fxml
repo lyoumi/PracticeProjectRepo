@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.*?>
+<?import javafx.scene.canvas.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+
+<AnchorPane fx:id="absolutePane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: black;" stylesheets="@../darkStyle.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="TwitterGetInfo">
+   <children>
+      <ToolBar layoutY="-6.0" prefHeight="40.0" prefWidth="200.0">
+        <items>
+            <ComboBox fx:id="boxCountry" prefWidth="150.0" promptText="chose" />
+          <Button fx:id="buttonProcess" mnemonicParsing="false" onAction="#startCalculate" text="GO" />
+            <Button fx:id="listOf" mnemonicParsing="false" onAction="#listOfTweets" text="LIST" />
+            <Button fx:id="aboutDev" mnemonicParsing="false" onAction="#about" text="ABOUT" />
+        </items>
+      </ToolBar>
+   </children>
+</AnchorPane>
