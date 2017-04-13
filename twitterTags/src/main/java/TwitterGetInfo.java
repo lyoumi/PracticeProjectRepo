@@ -5,12 +5,13 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.control.*;
 import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.SplitPane;
-import javafx.scene.control.TitledPane;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.*;
+import javafx.scene.paint.*;
+import javafx.scene.paint.*;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
@@ -19,6 +20,7 @@ import twitter4j.*;
 import twitter4j.conf.ConfigurationBuilder;
 
 import java.awt.*;
+//import java.awt.Color;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -45,7 +47,7 @@ public class TwitterGetInfo {
     public Button listOf;
     public SplitPane splitPane;
 
-    private ObservableList<String> countryList = FXCollections.observableArrayList(
+    private ObservableList<String> countryList = FXCollections.observableArrayList(                                     //лист значений для комбо-бокса
             "Ukraine", "USA", "Japan", "Germany", "World"
     );
 
@@ -54,14 +56,13 @@ public class TwitterGetInfo {
 
     private List<String> names;
     private int country;
-    private List<List<List<Long>>> listOfTweetsId = new ArrayList<>();                                                  //список id нвших твитов по тегам
+    private List<List<List<Long>>> listOfTweetsId = new ArrayList<>();                                                  //список id нвших твитов по тегам и странам
     /**
      * Для реализации выбран трехмерный массив, в котором первый массив - массив по странам, который
      * хранит массив по тегам, которые в свою очередь хранят id твитов.
      */
 
     private List <List> trendNames = new ArrayList();                                                                   //лист хэштегов
-    private Trend[] trend;                                                                                              //массив хэщтегов
     private double height;                                                                                              //высота pane
     private double width;                                                                                               //ширина pane
     private Random random = new Random();
@@ -129,6 +130,11 @@ public class TwitterGetInfo {
             int lastIndex = getLastButtonDraw();
 
             for (int j = 0; j < listOfTweetsId.get(lastIndex).size(); j++) {
+
+                /**
+                 * Создаем координаты для кнопок и сетим их на саму кнопку.
+                 * Также определяем направление по Х и У.
+                 */
                 listX.get(lastIndex).add(random.nextInt(333)+200);
                 listY.get(lastIndex).add(random.nextInt(333)+200);
                 directionListX.get(lastIndex).add(random.nextBoolean());
@@ -137,8 +143,8 @@ public class TwitterGetInfo {
                 buttonList.get(lastIndex).get(j).setLayoutY(listY.get(lastIndex).get(j));
 
                 int finalJ = j;
-                Platform.runLater((() -> absolutePane.getChildren().add(buttonList.get(lastIndex).get(finalJ))));
-                buttonList.get(lastIndex).get(j).setOnAction(((ActionEvent event) -> {
+                Platform.runLater((() -> absolutePane.getChildren().add(buttonList.get(lastIndex).get(finalJ))));       //сетим кнопку на pane
+                buttonList.get(lastIndex).get(j).setOnAction(((ActionEvent event) -> {                                  //вешаем на кнопку ивент
                     Stage dialog = new Stage();
                     dialog.initStyle(StageStyle.DECORATED);
                     Button buttonSearch = new Button("Go");
@@ -149,7 +155,7 @@ public class TwitterGetInfo {
                         if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
                             try {
                                 desktop.browse(new URI("https://twitter.com/hashtag/" +
-                                        trendNames.get(finalJ).toString().replaceAll("#", "")));
+                                        trendNames.get(lastIndex).get(finalJ).toString().replaceAll("#", "")));
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
@@ -265,6 +271,10 @@ public class TwitterGetInfo {
         dialog.show();
     }
 
+    /**
+     * Метод, который выводит на экран список тэгов
+     */
+
     public void listOfTweets(){
         Stage dialogList = new Stage();
         dialogList.initStyle(StageStyle.UTILITY);
@@ -272,16 +282,24 @@ public class TwitterGetInfo {
         String temp = "\n";
 
         for (int j = 0; j < listOfTweetsId.size(); j++) {
-            temp += (trendNames.get(j).toString() + ": " + listOfTweetsId.get(j).size() + "\n");
+            for (int k = 0; k < listOfTweetsId.get(j).size(); k++) {
+                temp += (trendNames.get(j).get(k).toString() + ": " + listOfTweetsId.get(j).get(k).size() + "\n");
+            }
+            temp += ("\n");
         }
 
         text.setText(temp);
         text.setStyle("-fx-text-fill: #3c7fb1");
         text.setTextAlignment(TextAlignment.CENTER);
-        Group group = new Group(text);
-        group.setStyle("-fx-background-color: #1d1d1d");
-        Scene scene = new Scene(group);
+        ScrollPane scrollPane = new ScrollPane(text);
+//        Group group = new Group(text);
+        BorderStroke borderStroke = new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT);
+        Border border = new Border(borderStroke);
+        scrollPane.setBorder(border);
+        Scene scene = new Scene(scrollPane);
         dialogList.setScene(scene);
+        dialogList.setWidth(200);
+        dialogList.setHeight(400);
         dialogList.setResizable(false);
         dialogList.show();
     }
@@ -306,7 +324,7 @@ public class TwitterGetInfo {
             e.printStackTrace();
         }
 
-        trend = trends.getTrends();
+        Trend[] trend = trends.getTrends();
 
         List<Button> innerButtonList = new ArrayList<>();
         buttonList.add(innerButtonList);
