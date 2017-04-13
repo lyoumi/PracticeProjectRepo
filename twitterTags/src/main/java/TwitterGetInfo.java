@@ -9,9 +9,6 @@ import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.*;
-import javafx.scene.paint.*;
-import javafx.scene.paint.*;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
@@ -22,10 +19,8 @@ import twitter4j.conf.ConfigurationBuilder;
 import java.awt.*;
 //import java.awt.Color;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.*;
 import java.util.List;
-import java.util.Random;
 
 /**
  * Created by lyoumi on 20.03.2017.
@@ -74,10 +69,35 @@ public class TwitterGetInfo {
     private List<List<Boolean>> directionListX = new ArrayList<>();                                                     //массив массивов булек, определяющих направление по Х
     private List<List<Boolean>> directionListY = new ArrayList<>();                                                     //массив массивов булек, определяющх направление по У
 
-    private int i = 0;
-    private int lastButton = -1;                                                                                         //индекс последнего добавленного массива кнопок (для класса обработчика)
+    private List<String> mapNames = new ArrayList<>();
+    private List<Long> mapId = new ArrayList<>();
 
+
+    private int lastButton = -1;                                                                                         //индекс последнего добавленного массива кнопок (для класса обработчика)
     private int lastButtonDraw = -1;                                                                                     //индекс последнего добавленного массива кнопок (для класса визуализатора)
+
+    private List<Long> summaryCountOfTweets = new ArrayList<>();
+
+    private boolean bol = false;
+
+    private boolean getBoolean(){
+        return bol;
+    }
+
+    private boolean setBoolean(){
+        bol = true;
+        return bol;
+    }
+
+    private int getLastButtonDraw(){
+        lastButtonDraw = lastButtonDraw + 1;
+        return lastButtonDraw;
+    }
+
+    private int getIncrementLastButton(){
+        lastButton = lastButton + 1;
+        return lastButton;
+    }
 
     @FXML
     public void initialize() {                                                                                          //метод initialize, в котором мы сетим в комбо-бокс значения
@@ -92,18 +112,300 @@ public class TwitterGetInfo {
 
         TwitterFactory twitterFactory = new TwitterFactory(configurationBuilder.build());
         twitter = twitterFactory.getInstance();
+
+        GetInfo getInfo = new GetInfo();
+        Thread calculateThread = new Thread(getInfo);
+        calculateThread.start();
+
+        SummaryCount summaryCount = new SummaryCount();
+        Thread summaryThread = new Thread(summaryCount);
+        summaryThread.start();
     }
 
-    private int getLastButtonDraw(){
-        lastButtonDraw = lastButtonDraw + 1;
-        return lastButtonDraw;
+    public void about(){
+        Stage dialog = new Stage();
+        dialog.initStyle(StageStyle.UTILITY);
+
+        Text text = (new Text(40, 40, "Данная программа собирает статистику твиттера по различным странам в виде топа хэштегов  \n" +
+                " и по аналогии делает запросы по ним раз в константу времени. На экран выводим информацию в виде  \n" +
+                " движущихся кнопок с наименованием хєштега, при нажатии на которую выводится окно с количеством твитов на заданную тематику,  \n" +
+                " а также кнопкой, при нажатии откроется браузер с новой вкладкой, на которой пользователь сможет увидеть  \n" +
+                " твиты по данному хэштэгу.  \n" +
+                "Development by Artjom Nikulin\n" +
+                "Contact email: it.chubaka@gmail.com\n"));
+        text.setStyle("-fx-text-fill: #3c7fb1");
+        text.setTextAlignment(TextAlignment.CENTER);
+        Group group = new Group(text);
+        group.setStyle("-fx-background-color: #1d1d1d");
+        Scene scene = new Scene(group);
+        dialog.setScene(scene);
+        dialog.setResizable(false);
+        dialog.show();
     }
 
-    private int getLastButton(){
-        lastButton = lastButton + 1;
-        return lastButton;
+
+    /**
+     * Метод, который выводит на экран список тэгов
+     */
+    public void listOfTweets(){
+        Stage dialogList = new Stage();
+        dialogList.initStyle(StageStyle.UTILITY);
+        Text text = new Text();
+        String temp = "\n";
+
+
+        for (int j = 0; j < listOfTweetsId.size(); j++) {
+
+            Map <String, Long> stringLongMap;
+            stringLongMap = sortMap(j);
+            Iterator it = stringLongMap.entrySet().iterator();
+            while (it.hasNext()) {
+                Map.Entry pair = (Map.Entry)it.next();
+                temp += (pair.getKey() + " = " + pair.getValue() + "\n");
+                it.remove();
+            }
+            temp += ("\n");
+        }
+
+        text.setText(temp);
+        text.setStyle("-fx-text-fill: #3c7fb1");
+        text.setTextAlignment(TextAlignment.CENTER);
+        ScrollPane scrollPane = new ScrollPane(text);
+        Scene scene = new Scene(scrollPane);
+        dialogList.setScene(scene);
+        dialogList.setWidth(200);
+        dialogList.setHeight(400);
+        dialogList.setResizable(false);
+        dialogList.show();
     }
 
+    /**
+     * Создаем мапу с єлементами упорядочеными по возрастанию
+     * @param pos
+     * @return
+     */
+    private Map<String, Long> sortMap(int pos){
+
+        Map<String, Long> mapOfTweets = new HashMap<>();
+        for (int k = 0; k < listOfTweetsId.get(pos).size(); k++) {
+            mapOfTweets.put(trendNames.get(pos).get(k).toString(), (long) listOfTweetsId.get(pos).get(k).size());
+        }
+        List<String> mapKeys = new ArrayList<>(mapOfTweets.keySet());
+        List<Long> mapValues = new ArrayList<>(mapOfTweets.values());
+
+        boolean p = sort(mapKeys, mapValues);
+
+        Map <String, Long> stringLongMap = new LinkedHashMap<>();
+        for (int k = 0; k < mapId.size(); k++) {
+            stringLongMap.put(mapNames.get(k), mapId.get(k));
+        }
+        return stringLongMap;
+    }
+
+    private boolean sort(List<String> stringList, List<Long> longList){
+        boolean t = true;
+        while (t == true) {
+            t = false;
+            for (int k = 1; k < longList.size(); k++) {
+                if (longList.get(k) < longList.get(k-1)) {
+                    Collections.swap(longList, k, (k-1));
+                    Collections.swap(stringList, k, (k-1));
+                    t = true;
+                }
+            }
+        }
+        this.mapId = longList;
+        this.mapNames = stringList;
+        return t;
+    }
+
+    private void sortForHist(int pos){
+        Map<String, Long> mapOfTweets = new HashMap<>();
+        for (int k = 0; k < listOfTweetsId.get(pos).size(); k++) {
+            mapOfTweets.put(trendNames.get(pos).get(k).toString(), (long) listOfTweetsId.get(pos).get(k).size());
+        }
+        mapNames = new ArrayList<>(mapOfTweets.keySet());
+        mapId = new ArrayList<>(mapOfTweets.values());
+
+        boolean b = sort(mapNames, mapId);
+    }
+
+    /**
+     * Гистограмма(в разработке)
+     */
+    public void showHistogram(){
+        Stage dialogList = new Stage();
+        dialogList.initStyle(StageStyle.UTILITY);
+        SplitPane histPane = new SplitPane();
+        Scene scene = new Scene(histPane);
+        dialogList.setScene(scene);
+        dialogList.setWidth(800);
+        dialogList.setHeight(600);
+        dialogList.setResizable(false);
+        dialogList.show();
+
+    }
+
+    /**
+     * Метод-слушатель для кнопки SEARCH
+     */
+    public void startCalculate() {
+
+        String color = null;
+        summaryCountOfTweets.add(0L);
+        if (boxCountry.getValue().equals("Ukraine")) {
+            country = 23424976;
+            color = ("-fx-border-color: white");
+        }
+        if (boxCountry.getValue().equals("USA")) {
+            country = 23424977;
+            color = ("-fx-border-color: yellow");
+        }
+        if (boxCountry.getValue().equals("Japan")) {
+            country = 23424856;
+            color = ("-fx-border-color: red");
+        }
+        if (boxCountry.getValue().equals("Germany")) {
+            country = 23424829;
+            color = ("-fx-border-color: green");
+        }
+        if (boxCountry.getValue().equals("World")) {
+            country = 1;
+            color = ("-fx-border-color: cyan");
+        }
+
+        Trends trends = null;
+        try {
+            trends = twitter.getPlaceTrends(country);
+        } catch (TwitterException e) {
+            e.printStackTrace();
+        }
+
+        Trend[] trend = trends.getTrends();
+
+        List<Button> innerButtonList = new ArrayList<>();
+        buttonList.add(innerButtonList);
+        List<List<Long>> innerCountryList = new ArrayList<>();
+        listOfTweetsId.add(innerCountryList);
+        List innerTrendNames = new ArrayList();
+        trendNames.add(innerTrendNames);
+
+        int lastIndex = getIncrementLastButton();
+        int localButtonPosition = 0;
+
+        for (Trend t :
+                trend) {
+            buttonList.get(lastIndex).add(new Button(t.getName()));
+
+            buttonList.get(lastIndex).get(localButtonPosition).setStyle(color);
+            localButtonPosition++;
+            List<Long> innerTrendList = new ArrayList<>();
+            listOfTweetsId.get(lastIndex).add(innerTrendList);
+            trendNames.get(lastIndex).add(t.getName());
+        }
+
+        Draw draw = new Draw();
+        Thread graphicsThread = new Thread(draw);
+        graphicsThread.start();
+
+        System.out.println(trend);
+
+        setBoolean();
+
+    }
+
+    /**
+     * Данный класс занимается отправкой запросов и обработкой результатов
+     */
+    public class GetInfo implements Runnable {
+
+        @Override
+        public void run() {
+            calculate();
+        }
+
+        private void calculate(){
+            while (true) {
+                while (!getBoolean()){
+                    System.err.println("WAITING");
+                }
+                for (int k = 0; k < trendNames.size(); k++) {
+                    for (int j = 0; j < trendNames.get(k).size(); j++) {
+                        Query query = new Query(trendNames.get(k).get(j).toString());
+                        query.setCount(100);
+                        QueryResult result;
+                        try {
+                            result = twitter.search(query);
+                            calculateSummaryOfTweets(result, j, k);
+
+
+                        } catch (TwitterException e) {
+                            Platform.runLater((() -> {
+                                Stage dialog = new Stage();
+                                dialog.initStyle(StageStyle.UTILITY);
+                                Text alertText = new Text("\nThe connection is lost. Try again in two minutes...");
+                                alertText.setStyle("-fx-text-fill: #ecebe9");
+                                alertText.setStyle("-fx-animated: true");
+                                Group group = new Group(alertText);
+                                group.setStyle("-fx-background-color: #1d1d1d");
+                                Scene scene = new Scene(group);
+                                dialog.setScene(scene);
+                                dialog.setResizable(false);
+                                dialog.show();
+                            }));
+                            try {
+                                Thread.sleep(120000);
+                            } catch (InterruptedException e1) {
+                                e1.printStackTrace();
+                            }
+                        }
+                    }
+
+                    if (listOfTweetsId.size()>1){
+                        try {
+                            Thread.sleep(60000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    System.out.println(trendNames.get(k));
+
+                    for (int j = 0; j < listOfTweetsId.get(k).size(); j++) {
+                        System.out.print(trendNames.get(k).get(j) + ": ");
+                        System.out.println(listOfTweetsId.get(k).get(j).size());
+                    }
+                }
+
+                try {
+                    Thread.sleep(60000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        /**
+         * Данный метод сравнивает полученный id твита и српанивает его с хранимыми в массиве. Если данного id
+         * не найдено - он добавляется в массив. На вход принимает результат запроса, номер массива страны, а также номер
+         * массива твитов
+         *
+         * @param buffer
+         * @param k
+         * @param pos
+         */
+
+        private synchronized void calculateSummaryOfTweets(QueryResult buffer, int k, Integer pos) {
+
+            for (Status tweet : buffer.getTweets()) {
+                if (!(listOfTweetsId.get(pos).get(k).contains(tweet.getId()))) listOfTweetsId.get(pos).get(k).add(tweet.getId());
+            }
+        }
+
+    }
+
+    /**
+     *Класс, занимающийся отрисовкой и перемещением кнопок
+     */
     public class Draw implements Runnable {
 
         @Override
@@ -114,6 +416,8 @@ public class TwitterGetInfo {
             /**
              * создаем внутренние листы
              */
+
+
             List<Integer> innerListX = new ArrayList<>();
             listX.add(innerListX);
             List<Integer> innerListY = new ArrayList<>();
@@ -249,184 +553,24 @@ public class TwitterGetInfo {
 
     }
 
-
-    public void about(){
-        Stage dialog = new Stage();
-        dialog.initStyle(StageStyle.UTILITY);
-
-        Text text = (new Text(40, 40, "Данная программа собирает статистику твиттера по различным странам в виде топа хэштегов  \n" +
-                " и по аналогии делает запросы по ним раз в константу времени. На экран выводим информацию в виде  \n" +
-                " движущихся кнопок с наименованием хєштега, при нажатии на которую выводится окно с количеством твитов на заданную тематику,  \n" +
-                " а также кнопкой, при нажатии откроется браузер с новой вкладкой, на которой пользователь сможет увидеть  \n" +
-                " твиты по данному хэштэгу.  \n" +
-                "Development by Artjom Nikulin\n" +
-                "Contact email: it.chubaka@gmail.com\n"));
-        text.setStyle("-fx-text-fill: #3c7fb1");
-        text.setTextAlignment(TextAlignment.CENTER);
-        Group group = new Group(text);
-        group.setStyle("-fx-background-color: #1d1d1d");
-        Scene scene = new Scene(group);
-        dialog.setScene(scene);
-        dialog.setResizable(false);
-        dialog.show();
-    }
-
-    /**
-     * Метод, который выводит на экран список тэгов
-     */
-
-    public void listOfTweets(){
-        Stage dialogList = new Stage();
-        dialogList.initStyle(StageStyle.UTILITY);
-        Text text = new Text();
-        String temp = "\n";
-
-        for (int j = 0; j < listOfTweetsId.size(); j++) {
-            for (int k = 0; k < listOfTweetsId.get(j).size(); k++) {
-                temp += (trendNames.get(j).get(k).toString() + ": " + listOfTweetsId.get(j).get(k).size() + "\n");
-            }
-            temp += ("\n");
-        }
-
-        text.setText(temp);
-        text.setStyle("-fx-text-fill: #3c7fb1");
-        text.setTextAlignment(TextAlignment.CENTER);
-        ScrollPane scrollPane = new ScrollPane(text);
-//        Group group = new Group(text);
-        BorderStroke borderStroke = new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT);
-        Border border = new Border(borderStroke);
-        scrollPane.setBorder(border);
-        Scene scene = new Scene(scrollPane);
-        dialogList.setScene(scene);
-        dialogList.setWidth(200);
-        dialogList.setHeight(400);
-        dialogList.setResizable(false);
-        dialogList.show();
-    }
-
-    /**
-     * Метод-слушатель для кнопки GO
-     *
-     */
-
-    public void startCalculate() {
-
-        if (boxCountry.getValue().equals("Ukraine")) country = 23424976;
-        if (boxCountry.getValue().equals("USA")) country = 23424977;
-        if (boxCountry.getValue().equals("Japan")) country = 23424856;
-        if (boxCountry.getValue().equals("Germany")) country = 23424829;
-        if (boxCountry.getValue().equals("World")) country = 1;
-
-        Trends trends = null;
-        try {
-            trends = twitter.getPlaceTrends(country);
-        } catch (TwitterException e) {
-            e.printStackTrace();
-        }
-
-        Trend[] trend = trends.getTrends();
-
-        List<Button> innerButtonList = new ArrayList<>();
-        buttonList.add(innerButtonList);
-        List<List<Long>> innerCountryList = new ArrayList<>();
-        listOfTweetsId.add(innerCountryList);
-        List innerTrendNames = new ArrayList();
-        trendNames.add(innerTrendNames);
-
-        int lastIndex = getLastButton();
-
-        for (Trend t :
-                trend) {
-            buttonList.get(lastIndex).add(new Button(t.getName()));
-            List<Long> innerTrendList = new ArrayList<>();
-            listOfTweetsId.get(lastIndex).add(innerTrendList);
-            trendNames.get(lastIndex).add(t.getName());
-        }
-
-        Draw draw = new Draw();
-        Thread graphicsThread = new Thread(draw);
-        graphicsThread.start();
-
-        System.out.println(trend);
-        GetInfo getInfo = new GetInfo();
-        Thread calculateThread = new Thread(getInfo);
-        calculateThread.start();
-    }
-
-    /**
-     * Данный класс занимается отправкой запросов и обработкой результатов
-     */
-    public class GetInfo implements Runnable {
-
+    public class SummaryCount implements Runnable{
         @Override
         public void run() {
-
-            int currentPosition = lastButton;
-            while (true) {
-
-                for (int j = 0; j < trendNames.get(currentPosition).size(); j++) {
-                    Query query = new Query(trendNames.get(currentPosition).get(j).toString());
-                    query.setCount(100);
-                    QueryResult result;
-                    try {
-                        result = twitter.search(query);
-                        calculateSummaryOfTweets(result, i, currentPosition);
-
-                        if (i < (listOfTweetsId.get(currentPosition).size() - 1)) ++i;
-                        else i = 0;
-
-                    } catch (TwitterException e) {
-                        Platform.runLater((() -> {
-                            Stage dialog = new Stage();
-                            dialog.initStyle(StageStyle.UTILITY);
-                            Text alertText = new Text("\nThe connection is lost. Try again in two minutes...");
-                            alertText.setStyle("-fx-text-fill: #ecebe9");
-                            alertText.setStyle("-fx-animated: true");
-                            Group group = new Group(alertText);
-                            group.setStyle("-fx-background-color: #1d1d1d");
-                            Scene scene = new Scene(group);
-                            dialog.setScene(scene);
-                            dialog.setResizable(false);
-                            dialog.show();
-                        }));
-                        try {
-                            Thread.sleep(120000);
-                        } catch (InterruptedException e1) {
-                            e1.printStackTrace();
-                        }
-                    }
-                }
-
-                System.out.println(trendNames.get(currentPosition));
-
-                for (int j = 0; j < listOfTweetsId.get(currentPosition).size(); j++) {
-                    System.out.print(trendNames.get(currentPosition).get(j) + ": ");
-                    System.out.println(listOfTweetsId.get(currentPosition).get(j).size());
-                }
-
-
-                try {
-                    Thread.sleep(60000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
+            summary();
         }
 
-        /**
-         * Данный метод сравнивает полученный id твита и српанивает его с хранимыми в массиве. Если данного id
-         * не найдено - он добавляется в массив. На вход принимает результат запроса, номер массива страны, а также номер
-         * массива твитов
-         *
-         * @param buffer
-         * @param k
-         * @param pos
-         */
-
-        private synchronized void calculateSummaryOfTweets(QueryResult buffer, int k, Integer pos) {
-
-            for (Status tweet : buffer.getTweets()) {
-                if (!(listOfTweetsId.get(pos).get(k).contains(tweet.getId()))) listOfTweetsId.get(pos).get(k).add(tweet.getId());
+        private void summary(){
+            while (!getBoolean()){
+                System.err.println("");
+            }
+            while (true){
+                for (int j = 0; j < listOfTweetsId.size(); j++) {
+                    Long sum = 0L;
+                    for (int k = 0; k < listOfTweetsId.get(j).size(); k++) {
+                        sum += listOfTweetsId.get(j).get(k).size();
+                    }
+                    summaryCountOfTweets.set(j, sum);
+                }
             }
         }
     }
