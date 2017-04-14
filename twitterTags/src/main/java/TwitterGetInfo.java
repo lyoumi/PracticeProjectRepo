@@ -3,7 +3,9 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Group;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
@@ -18,9 +20,12 @@ import twitter4j.conf.ConfigurationBuilder;
 
 import java.awt.*;
 //import java.awt.Color;
+import java.io.IOException;
 import java.net.URI;
 import java.util.*;
 import java.util.List;
+
+import static javafx.application.Application.launch;
 
 /**
  * Created by lyoumi on 20.03.2017.
@@ -202,12 +207,18 @@ public class TwitterGetInfo {
         return stringLongMap;
     }
 
+    /**
+     * Сортируем мапу по убыванию (вытаскиваем отдельно ключи и значения и сортируем их)
+     * @param stringList
+     * @param longList
+     * @return
+     */
     private boolean sort(List<String> stringList, List<Long> longList){
         boolean t = true;
         while (t == true) {
             t = false;
             for (int k = 1; k < longList.size(); k++) {
-                if (longList.get(k) < longList.get(k-1)) {
+                if (longList.get(k) > longList.get(k-1)) {
                     Collections.swap(longList, k, (k-1));
                     Collections.swap(stringList, k, (k-1));
                     t = true;
@@ -219,31 +230,66 @@ public class TwitterGetInfo {
         return t;
     }
 
-    private void sortForHist(int pos){
-        Map<String, Long> mapOfTweets = new HashMap<>();
-        for (int k = 0; k < listOfTweetsId.get(pos).size(); k++) {
-            mapOfTweets.put(trendNames.get(pos).get(k).toString(), (long) listOfTweetsId.get(pos).get(k).size());
-        }
-        mapNames = new ArrayList<>(mapOfTweets.keySet());
-        mapId = new ArrayList<>(mapOfTweets.values());
-
-        boolean b = sort(mapNames, mapId);
-    }
-
     /**
-     * Гистограмма(в разработке)
+     * Гистограмма
      */
-    public void showHistogram(){
-        Stage dialogList = new Stage();
-        dialogList.initStyle(StageStyle.UTILITY);
-        SplitPane histPane = new SplitPane();
-        Scene scene = new Scene(histPane);
-        dialogList.setScene(scene);
-        dialogList.setWidth(800);
-        dialogList.setHeight(600);
-        dialogList.setResizable(false);
-        dialogList.show();
 
+    public void showHistogram() throws IOException {
+        Stage dialog = new Stage();
+        dialog.initStyle(StageStyle.UTILITY);
+        TabPane tabbedPane = new TabPane();
+
+
+        for (int i = 0; i < listOfTweetsId.size(); i++) {
+            Map<String,Long> stringLongMap = sortMap(i);
+            List<String> mapKeys = new ArrayList<>(stringLongMap.keySet());
+            List<Long> mapValues = new ArrayList<>(stringLongMap.values());
+
+            SplitPane splitPane = new SplitPane();
+            for (int j = 0; j < 10; j++) {
+
+                AnchorPane anchorPane = new AnchorPane();
+                Button button = new Button(mapKeys.get(j));
+
+                int finalJ = j;
+                button.setOnAction(event -> {
+                    Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
+                    if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
+                        try {
+                            desktop.browse(new URI("https://twitter.com/hashtag/" +
+                                    mapKeys.get(finalJ).replaceAll("#", "")));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+
+                button.setPrefWidth(72);
+                button.setMinWidth(72);
+                button.setMaxWidth(72);
+
+                double heightOfButton = Double.valueOf(mapValues.get(j))/Double.valueOf(summaryCountOfTweets.get(i));
+                heightOfButton = 600*heightOfButton*5;
+
+                button.setPrefHeight(heightOfButton);
+                button.setMinHeight(heightOfButton);
+                button.setMaxHeight(heightOfButton);
+
+                button.setLayoutX(0);
+                button.setLayoutY(anchorPane.getHeight()-button.getHeight());
+                anchorPane.getChildren().add(button);
+                splitPane.getItems().add(anchorPane);
+            }
+            Tab tab = new Tab();
+            tab.setContent(splitPane);
+            tabbedPane.getTabs().add(tab);
+        }
+        Scene scene = new Scene(tabbedPane);
+        dialog.setScene(scene);
+        dialog.setHeight(600);
+        dialog.setWidth(800);
+        dialog.setResizable(false);
+        dialog.show();
     }
 
     /**
@@ -553,6 +599,9 @@ public class TwitterGetInfo {
 
     }
 
+    /**
+     * Класс, подсчитывающий суммарное количесво твитов по странам (для статистики на диаграмме)
+     */
     public class SummaryCount implements Runnable{
         @Override
         public void run() {
