@@ -17,6 +17,7 @@
             <Button fx:id="listOf" mnemonicParsing="false" onAction="#listOfTweets" prefWidth="150.0" text="LIST" />
             <Button fx:id="aboutDev" mnemonicParsing="false" onAction="#about" prefWidth="150.0" text="ABOUT" />
             <Button fx:id="histoBtn" maxWidth="150.0" minWidth="150.0" mnemonicParsing="false" onAction="#showHistogram" prefWidth="150.0" text="HISTOGRAM" />
+            <Button fx:id="exportToExcl" maxWidth="150.0" minWidth="150.0" mnemonicParsing="false" onAction="#saveToExcel" prefWidth="150.0" text="SAVE TO EXCEL" />
          </children>
       </VBox>
       <AnchorPane fx:id="absolutePane" style="-fx-background-color: black;" stylesheets="@../style/darkStyle.css" />
