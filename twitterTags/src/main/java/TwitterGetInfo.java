@@ -13,17 +13,27 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import jxl.Workbook;
+import jxl.write.WritableSheet;
+import jxl.write.WritableWorkbook;
+import jxl.write.WriteException;
+import jxl.write.biff.RowsExceededException;
 import twitter4j.*;
 import twitter4j.conf.ConfigurationBuilder;
 
 import java.awt.*;
 //import java.awt.Color;
+import java.awt.Label;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URI;
 import java.util.*;
 import java.util.List;
+import java.util.logging.Level;
 
 import static javafx.application.Application.launch;
 
@@ -239,7 +249,6 @@ public class TwitterGetInfo {
         dialog.initStyle(StageStyle.UTILITY);
         TabPane tabbedPane = new TabPane();
 
-
         for (int i = 0; i < listOfTweetsId.size(); i++) {
             Map<String,Long> stringLongMap = sortMap(i);
             List<String> mapKeys = new ArrayList<>(stringLongMap.keySet());
@@ -290,6 +299,50 @@ public class TwitterGetInfo {
         dialog.setWidth(800);
         dialog.setResizable(false);
         dialog.show();
+    }
+
+    /**
+     * Обработчик нажатия клавиши сохранения
+     */
+
+    public void saveToExcel(){
+        FileChooser fileChooser = new FileChooser();
+
+        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Книга Excel", "*.xls");
+        fileChooser.getExtensionFilters().add(extFilter);
+
+        File file = fileChooser.showSaveDialog(new Stage());
+
+        if(file != null){
+            SaveFile(file);
+        }
+    }
+
+    /**
+     * Сохраняем в exl
+     * @param file
+     */
+
+    private void SaveFile(File file){
+        try {
+            WritableWorkbook myExcel = Workbook.createWorkbook(file);
+            WritableSheet mySheet = myExcel.createSheet("mySheet",0);
+            for (int i = 0; i < listOfTweetsId.size(); i++) {
+
+                int localNames = i*2;
+                int localTweets = localNames+1;
+                for (int j = 0; j < listOfTweetsId.get(i).size(); j++) {
+                    jxl.write.Label labelName = new jxl.write.Label(localNames, j, String.valueOf(trendNames.get(i).get(j)));
+                    mySheet.addCell(labelName);
+                    jxl.write.Label label = new jxl.write.Label(localTweets, j, String.valueOf(listOfTweetsId.get(i).get(j).size()));
+                    mySheet.addCell(label);
+                }
+            }
+            myExcel.write();
+            myExcel.close();
+        } catch (IOException | WriteException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
