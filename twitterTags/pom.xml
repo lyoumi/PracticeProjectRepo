@@ -47,13 +47,11 @@
 
     <dependencies>
 
-        <!--<dependency>-->
-            <!--<groupId>com.oracle</groupId>-->
-            <!--<artifactId>javafx</artifactId>-->
-            <!--<version>2.2.3</version>-->
-            <!--<scope>system</scope>-->
-            <!--<systemPath>D:/Program/twitterTags/.idea/libraries/jfxrt.jar</systemPath>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>net.sourceforge.jexcelapi</groupId>
+            <artifactId>jxl</artifactId>
+            <version>2.6.12</version>
+        </dependency>
 
         <dependency>
             <groupId>org.twitter4j</groupId>
