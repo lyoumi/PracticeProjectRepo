@@ -3,9 +3,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Group;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
@@ -20,22 +18,15 @@ import jxl.Workbook;
 import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
-import jxl.write.biff.RowsExceededException;
 import twitter4j.*;
 import twitter4j.conf.ConfigurationBuilder;
 
 import java.awt.*;
-//import java.awt.Color;
-import java.awt.Label;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URI;
 import java.util.*;
 import java.util.List;
-import java.util.logging.Level;
-
-import static javafx.application.Application.launch;
 
 /**
  * Created by lyoumi on 20.03.2017.
@@ -50,12 +41,15 @@ import static javafx.application.Application.launch;
 
 public class TwitterGetInfo {
 
+    public SplitPane splitPane;
+    public AnchorPane absolutePane;
     public ComboBox boxCountry;
     public Button buttonProcess;
-    public AnchorPane absolutePane;
     public Button aboutDev;
     public Button listOf;
-    public SplitPane splitPane;
+    public Button histogramBtn;
+    public Button exportToExcl;
+    public VBox vBox;
 
     private ObservableList<String> countryList = FXCollections.observableArrayList(                                     //лист значений для комбо-бокса
             "Ukraine", "USA", "Japan", "Germany", "World"
@@ -87,6 +81,7 @@ public class TwitterGetInfo {
     private List<String> mapNames = new ArrayList<>();
     private List<Long> mapId = new ArrayList<>();
 
+    private boolean isHidden = false;
 
     private int lastButton = -1;                                                                                         //индекс последнего добавленного массива кнопок (для класса обработчика)
     private int lastButtonDraw = -1;                                                                                     //индекс последнего добавленного массива кнопок (для класса визуализатора)
@@ -118,6 +113,15 @@ public class TwitterGetInfo {
     public void initialize() {                                                                                          //метод initialize, в котором мы сетим в комбо-бокс значения
         boxCountry.setValue("Choose country...");
         boxCountry.setItems(countryList);
+        splitPane.getItems().get(1).setManaged(true);
+
+        System.out.println("LayoutX " + vBox.getLayoutX());
+        System.out.println("LayoutY " + vBox.getLayoutY());
+        System.out.println("ScaleX " + vBox.getScaleX());
+        System.out.println("ScaleY " + vBox.getScaleY());
+        System.out.println("Height " + vBox.getHeight());
+        System.out.println("Width " + vBox.getWidth());
+
 
         configurationBuilder.setDaemonEnabled(true)
                 .setOAuthConsumerKey("DDe9Pr6bx5YvXuK2XX6pyQhFu")
@@ -343,6 +347,76 @@ public class TwitterGetInfo {
         } catch (IOException | WriteException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Обработчик нажатия клавиши скрытия
+     */
+    
+    public void hide(){
+
+        if (isHidden) {
+            isHidden = false;
+            new Thread(() -> {
+                int i = 0;
+                while (i < 150){
+                    i++;
+                    setHidden(i);
+                    try {
+                        Thread.sleep(3);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
+        } else {
+            isHidden = true;
+            new Thread(() -> {
+                int i = 150;
+                while (i > 0){
+                    i--;
+                    setHidden(i);
+                    try {
+                        Thread.sleep(3);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
+        }
+
+
+    }
+
+    /**
+     * Сетим размеры меню
+     * @param i
+     */
+    
+    private void setHidden(int i){
+        boxCountry.setPrefWidth(i);
+        buttonProcess.setPrefWidth(i);
+        listOf.setPrefWidth(i);
+        histogramBtn.setPrefWidth(i);
+        exportToExcl.setPrefWidth(i);
+        aboutDev.setPrefWidth(i);
+        vBox.setPrefWidth(i);
+
+        boxCountry.setMinWidth(i);
+        buttonProcess.setMinWidth(i);
+        listOf.setMinWidth(i);
+        histogramBtn.setMinWidth(i);
+        exportToExcl.setMinWidth(i);
+        aboutDev.setMinWidth(i);
+        vBox.setMinWidth(i);
+
+        boxCountry.setMaxWidth(i);
+        buttonProcess.setMaxWidth(i);
+        listOf.setMaxWidth(i);
+        histogramBtn.setMaxWidth(i);
+        exportToExcl.setMaxWidth(i);
+        aboutDev.setMaxWidth(i);
+        vBox.setMaxWidth(i);
     }
 
     /**
