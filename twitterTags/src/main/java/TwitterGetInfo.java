@@ -22,8 +22,7 @@ import twitter4j.*;
 import twitter4j.conf.ConfigurationBuilder;
 
 import java.awt.*;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.net.URI;
 import java.util.*;
 import java.util.List;
@@ -39,17 +38,19 @@ import java.util.List;
  а также кнопкой, при нажатии откроется браузер с новой вкладкой, на которой пользователь сможет увидеть
  твиты по данному хэштэгу*/
 
-public class TwitterGetInfo {
+public class TwitterGetInfo implements Serializable {
 
     public SplitPane splitPane;
     public AnchorPane absolutePane;
     public ComboBox boxCountry;
     public Button buttonProcess;
-    public Button aboutDev;
-    public Button listOf;
-    public Button histogramBtn;
-    public Button exportToExcl;
+    public Button aboutDevButton;
+    public Button showFullListButton;
+    public Button histogramButton;
+    public Button exportToExcelButton;
     public VBox vBox;
+    public Button serializeButton;
+    public Button deserializeButton;
 
     private ObservableList<String> countryList = FXCollections.observableArrayList(                                     //лист значений для комбо-бокса
             "Ukraine", "USA", "Japan", "Germany", "World"
@@ -58,7 +59,6 @@ public class TwitterGetInfo {
     private ConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
     private Twitter twitter;
 
-    private List<String> names;
     private int country;
     private List<List<List<Long>>> listOfTweetsId = new ArrayList<>();                                                  //список id нвших твитов по тегам и странам
     /**
@@ -129,6 +129,8 @@ public class TwitterGetInfo {
                 .setOAuthAccessToken("599464837-4P4yXM1c5ndrIo922Xv4pczbozr7GtQoP67DS4fP")
                 .setOAuthAccessTokenSecret("CYbgMSf6bpTVjjZNAAJzWt4BWc14gm4Gn0ozB2oWwktZt");
 
+
+
         TwitterFactory twitterFactory = new TwitterFactory(configurationBuilder.build());
         twitter = twitterFactory.getInstance();
 
@@ -161,7 +163,6 @@ public class TwitterGetInfo {
         dialog.setResizable(false);
         dialog.show();
     }
-
 
     /**
      * Метод, который выводит на экран список тэгов
@@ -352,7 +353,7 @@ public class TwitterGetInfo {
     /**
      * Обработчик нажатия клавиши скрытия
      */
-    
+
     public void hide(){
 
         if (isHidden) {
@@ -392,31 +393,71 @@ public class TwitterGetInfo {
      * Сетим размеры меню
      * @param i
      */
-    
+
     private void setHidden(int i){
         boxCountry.setPrefWidth(i);
         buttonProcess.setPrefWidth(i);
-        listOf.setPrefWidth(i);
-        histogramBtn.setPrefWidth(i);
-        exportToExcl.setPrefWidth(i);
-        aboutDev.setPrefWidth(i);
+        showFullListButton.setPrefWidth(i);
+        histogramButton.setPrefWidth(i);
+        exportToExcelButton.setPrefWidth(i);
+        aboutDevButton.setPrefWidth(i);
+        serializeButton.setPrefWidth(i);
+        deserializeButton.setPrefWidth(i);
         vBox.setPrefWidth(i);
 
         boxCountry.setMinWidth(i);
         buttonProcess.setMinWidth(i);
-        listOf.setMinWidth(i);
-        histogramBtn.setMinWidth(i);
-        exportToExcl.setMinWidth(i);
-        aboutDev.setMinWidth(i);
+        showFullListButton.setMinWidth(i);
+        histogramButton.setMinWidth(i);
+        exportToExcelButton.setMinWidth(i);
+        aboutDevButton.setMinWidth(i);
+        serializeButton.setMinWidth(i);
+        deserializeButton.setMinWidth(i);
         vBox.setMinWidth(i);
 
         boxCountry.setMaxWidth(i);
         buttonProcess.setMaxWidth(i);
-        listOf.setMaxWidth(i);
-        histogramBtn.setMaxWidth(i);
-        exportToExcl.setMaxWidth(i);
-        aboutDev.setMaxWidth(i);
+        showFullListButton.setMaxWidth(i);
+        histogramButton.setMaxWidth(i);
+        exportToExcelButton.setMaxWidth(i);
+        aboutDevButton.setMaxWidth(i);
+        serializeButton.setMaxWidth(i);
+        deserializeButton.setMaxWidth(i);
         vBox.setMaxWidth(i);
+    }
+
+    /**
+     * Сериализация массива id и массива trendNames
+     */
+    
+    public void serialize(){
+        File file = new File("data");
+        FileOutputStream fileOutputStream;
+        try {
+            fileOutputStream = new FileOutputStream(file);
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
+            objectOutputStream.writeObject(listOfTweetsId);
+            objectOutputStream.writeObject(trendNames);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Десериализация массива id и массива trendNames
+     */
+    
+    public void deserialize(){
+        File file = new File("data");
+        FileInputStream fileInputStream;
+        try {
+            fileInputStream = new FileInputStream(file);
+            ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+            listOfTweetsId = (List<List<List<Long>>>) objectInputStream.readObject();
+            objectInputStream.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
