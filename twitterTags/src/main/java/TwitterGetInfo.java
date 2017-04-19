@@ -7,6 +7,7 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
@@ -18,6 +19,7 @@ import jxl.Workbook;
 import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
 import jxl.write.WriteException;
+import org.apache.log4j.BasicConfigurator;
 import twitter4j.*;
 import twitter4j.conf.ConfigurationBuilder;
 
@@ -51,14 +53,19 @@ public class TwitterGetInfo implements Serializable {
     public VBox vBox;
     public Button serializeButton;
     public Button deserializeButton;
+    public ScrollPane propertyPane;
+    public VBox propertyBar;
 
     private ObservableList<String> countryList = FXCollections.observableArrayList(                                     //лист значений для комбо-бокса
             "Ukraine", "USA", "Japan", "Germany", "World"
     );
 
-    private ConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
-    private Twitter twitter;
+    private List<SplitMenuButton> splitMenuButtonsColorsOfCountry = new ArrayList<>();
+    private List<List<MenuItem>> buttonsColor = new ArrayList<>();
 
+    private ConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
+
+    private Twitter twitter;
     private int country;
     private List<List<List<Long>>> listOfTweetsId = new ArrayList<>();                                                  //список id нвших твитов по тегам и странам
     /**
@@ -70,20 +77,21 @@ public class TwitterGetInfo implements Serializable {
     private double height;                                                                                              //высота pane
     private double width;                                                                                               //ширина pane
     private Random random = new Random();
+
     private List<List<Button>> buttonList = new ArrayList<>();                                                          //массив массивов кнопок
-
     private List<List<Integer>> listX = new ArrayList<>();                                                              //массив массивов координат х
+
     private List<List<Integer>> listY = new ArrayList<>();                                                              //массив массивов координат у
-
     private List<List<Boolean>> directionListX = new ArrayList<>();                                                     //массив массивов булек, определяющих направление по Х
-    private List<List<Boolean>> directionListY = new ArrayList<>();                                                     //массив массивов булек, определяющх направление по У
 
+    private List<List<Boolean>> directionListY = new ArrayList<>();                                                     //массив массивов булек, определяющх направление по У
     private List<String> mapNames = new ArrayList<>();
+
     private List<Long> mapId = new ArrayList<>();
 
     private boolean isHidden = false;
-
     private int lastButton = -1;                                                                                         //индекс последнего добавленного массива кнопок (для класса обработчика)
+
     private int lastButtonDraw = -1;                                                                                     //индекс последнего добавленного массива кнопок (для класса визуализатора)
 
     private List<Long> summaryCountOfTweets = new ArrayList<>();
@@ -99,7 +107,7 @@ public class TwitterGetInfo implements Serializable {
         return bol;
     }
 
-    private int getLastButtonDraw(){
+    private int incrementLastButtonDraw(){
         lastButtonDraw = lastButtonDraw + 1;
         return lastButtonDraw;
     }
@@ -130,6 +138,7 @@ public class TwitterGetInfo implements Serializable {
                 .setOAuthAccessTokenSecret("CYbgMSf6bpTVjjZNAAJzWt4BWc14gm4Gn0ozB2oWwktZt");
 
 
+//        BasicConfigurator.configure();
 
         TwitterFactory twitterFactory = new TwitterFactory(configurationBuilder.build());
         twitter = twitterFactory.getInstance();
@@ -141,6 +150,28 @@ public class TwitterGetInfo implements Serializable {
         SummaryCount summaryCount = new SummaryCount();
         Thread summaryThread = new Thread(summaryCount);
         summaryThread.start();
+    }
+
+    /**
+     * Сетим в і-тое меню items
+     * @param i
+     */
+
+    private void setItems(int i){
+        buttonsColor.add(new ArrayList<>());
+        buttonsColor.get(i).add(new MenuItem("white"));
+        buttonsColor.get(i).add(new MenuItem("black"));
+        buttonsColor.get(i).add(new MenuItem("brown"));
+        buttonsColor.get(i).add(new MenuItem("green"));
+        buttonsColor.get(i).add(new MenuItem("lime"));
+        buttonsColor.get(i).add(new MenuItem("yellow"));
+        buttonsColor.get(i).add(new MenuItem("red"));
+        buttonsColor.get(i).add(new MenuItem("maroon"));
+        buttonsColor.get(i).add(new MenuItem("cyan"));
+        buttonsColor.get(i).add(new MenuItem("blue"));
+        buttonsColor.get(i).add(new MenuItem("pink"));
+        buttonsColor.get(i).add(new MenuItem("indigo"));
+        splitMenuButtonsColorsOfCountry.get(i).getItems().addAll(buttonsColor.get(i));
     }
 
     public void about(){
@@ -283,7 +314,7 @@ public class TwitterGetInfo implements Serializable {
                 button.setMaxWidth(72);
 
                 double heightOfButton = Double.valueOf(mapValues.get(j))/Double.valueOf(summaryCountOfTweets.get(i));
-                heightOfButton = 600*heightOfButton*5;
+                heightOfButton = 600*heightOfButton*3;
 
                 button.setPrefHeight(heightOfButton);
                 button.setMinHeight(heightOfButton);
@@ -429,7 +460,7 @@ public class TwitterGetInfo implements Serializable {
     /**
      * Сериализация массива id и массива trendNames
      */
-    
+
     public void serialize(){
         File file = new File("data");
         FileOutputStream fileOutputStream;
@@ -446,7 +477,7 @@ public class TwitterGetInfo implements Serializable {
     /**
      * Десериализация массива id и массива trendNames
      */
-    
+
     public void deserialize(){
         File file = new File("data");
         FileInputStream fileInputStream;
@@ -518,6 +549,17 @@ public class TwitterGetInfo implements Serializable {
             trendNames.get(lastIndex).add(t.getName());
         }
 
+
+        splitMenuButtonsColorsOfCountry.add(new SplitMenuButton());
+        splitMenuButtonsColorsOfCountry.get(lastIndex).setText(boxCountry.getValue().toString());
+        splitMenuButtonsColorsOfCountry.get(lastIndex).setMinWidth(137);
+        setItems(lastIndex);
+        propertyBar.getChildren().add(splitMenuButtonsColorsOfCountry.get(lastIndex));
+
+        InitColor initColor = new InitColor();
+        Thread thread = new Thread(initColor);
+        thread.start();
+
         Draw draw = new Draw();
         Thread graphicsThread = new Thread(draw);
         graphicsThread.start();
@@ -526,6 +568,28 @@ public class TwitterGetInfo implements Serializable {
 
         setBoolean();
 
+    }
+
+    /**
+     * Класс, инициализирующий слушатели для items (смена цвета)
+     */
+
+    public class InitColor implements Runnable{
+        @Override
+        public void run() {
+            for (int i = 0; i < splitMenuButtonsColorsOfCountry.size(); i++) {
+                for (int j = 0; j < buttonsColor.get(i).size(); j++) {
+                    int finalI = i;
+                    int finalJ = j;
+                    buttonsColor.get(i).get(j).setOnAction(event -> {
+                        for (Button button :
+                                buttonList.get(finalI)) {
+                            button.setStyle("-fx-border-color: " + buttonsColor.get(finalI).get(finalJ).getText());
+                        }
+                    });
+                }
+            }
+        }
     }
 
     /**
@@ -541,7 +605,7 @@ public class TwitterGetInfo implements Serializable {
         private void calculate(){
             while (true) {
                 while (!getBoolean()){
-                    System.err.println("WAITING");
+                    System.err.print("WAITING");
                 }
                 for (int k = 0; k < trendNames.size(); k++) {
                     for (int j = 0; j < trendNames.get(k).size(); j++) {
@@ -551,8 +615,6 @@ public class TwitterGetInfo implements Serializable {
                         try {
                             result = twitter.search(query);
                             calculateSummaryOfTweets(result, j, k);
-
-
                         } catch (TwitterException e) {
                             Platform.runLater((() -> {
                                 Stage dialog = new Stage();
@@ -574,10 +636,9 @@ public class TwitterGetInfo implements Serializable {
                             }
                         }
                     }
-
                     if (listOfTweetsId.size()>1){
                         try {
-                            Thread.sleep(60000);
+                            Thread.sleep(90000);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
@@ -645,7 +706,9 @@ public class TwitterGetInfo implements Serializable {
              * Добавляем кнопки на экран в рандомно инициализированных координатах и направлениях
              * Также объявляем слушатель для кнопки
              */
-            int lastIndex = getLastButtonDraw();
+            int lastIndex = incrementLastButtonDraw();
+
+
 
             for (int j = 0; j < listOfTweetsId.get(lastIndex).size(); j++) {
 
@@ -710,19 +773,19 @@ public class TwitterGetInfo implements Serializable {
                         int tempWidth = (int) (movingList.get(j).getWidth());
                         int tempHeight = (int) (movingList.get(j).getHeight());
 
-                        if (listX.get(position).get(j) == 0) {
+                        if (listX.get(position).get(j) <= 0) {
                             directionListX.get(position).set(j, true);
                         }
 
-                        if (listY.get(position).get(j) == 0) {
+                        if (listY.get(position).get(j) <= 0) {
                             directionListY.get(position).set(j, true);
                         }
 
-                        if (listX.get(position).get(j) == (width-tempWidth)) {
+                        if (listX.get(position).get(j) >= (width-tempWidth)) {
                             directionListX.get(position).set(j, false);
                         }
 
-                        if (listY.get(position).get(j) == (height-tempHeight)) {
+                        if (listY.get(position).get(j) >= (height-tempHeight)) {
                             directionListY.get(position).set(j, false);
                         }
 
@@ -777,16 +840,16 @@ public class TwitterGetInfo implements Serializable {
         }
 
         private void summary(){
-            while (!getBoolean()){
-                System.err.println("");
+            while (bol==false){
+                System.err.print("");
             }
             while (true){
-                for (int j = 0; j < listOfTweetsId.size(); j++) {
+                for (int positionOuter = 0; positionOuter < listOfTweetsId.size(); positionOuter++) {
                     Long sum = 0L;
-                    for (int k = 0; k < listOfTweetsId.get(j).size(); k++) {
-                        sum += listOfTweetsId.get(j).get(k).size();
+                    for (int positionInner = 0; positionInner < listOfTweetsId.get(positionOuter).size(); positionInner++) {
+                        sum += listOfTweetsId.get(positionOuter).get(positionInner).size();
                     }
-                    summaryCountOfTweets.set(j, sum);
+                    summaryCountOfTweets.set(positionOuter, sum);
                 }
             }
         }
