@@ -8,21 +8,26 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<SplitPane fx:id="splitPane" dividerPositions="0.5" prefHeight="600.0" prefWidth="800.0" stylesheets="@../style/darkStyle.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="TwitterGetInfo">
+<SplitPane fx:id="splitPane" dividerPositions="0.5" minHeight="600.0" minWidth="800.0" prefHeight="600.0" prefWidth="800.0" stylesheets="@../style/darkStyle.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="TwitterGetInfo">
    <items>
-      <VBox fx:id="vBox" maxWidth="150.0" minWidth="150.0" prefWidth="150.0">
+      <VBox fx:id="vBox" maxWidth="150.0" minHeight="560.0" minWidth="150.0" prefHeight="560.0" prefWidth="150.0">
          <children>
             <ComboBox fx:id="boxCountry" maxWidth="150.0" minWidth="150.0" prefWidth="150.0" promptText="chose" />
           <Button fx:id="buttonProcess" maxWidth="150.0" minWidth="150.0" mnemonicParsing="false" onAction="#startCalculate" prefWidth="150.0" text="SEARCH" />
             <Button fx:id="showFullListButton" maxWidth="150.0" minWidth="150.0" mnemonicParsing="false" onAction="#listOfTweets" prefWidth="150.0" text="LIST" />
             <Button fx:id="histogramButton" maxWidth="150.0" minWidth="150.0" mnemonicParsing="false" onAction="#showHistogram" prefWidth="150.0" text="HISTOGRAM" />
             <Button fx:id="exportToExcelButton" maxWidth="150.0" minWidth="150.0" mnemonicParsing="false" onAction="#saveToExcel" prefWidth="150.0" text="SAVE TO EXCEL" />
-            <Button fx:id="aboutDevButton" maxWidth="150.0" minWidth="150.0" mnemonicParsing="false" onAction="#about" prefWidth="150.0" text="ABOUT" />
             <Button fx:id="serializeButton" maxWidth="150.0" minWidth="150.0" mnemonicParsing="false" onAction="#serialize" prefWidth="150.0" text="SERIALIZE" />
             <Button fx:id="deserializeButton" maxWidth="150.0" minWidth="150.0" mnemonicParsing="false" onAction="#deserialize" prefWidth="150.0" text="DESERIALIZE" />
+            <Button fx:id="aboutDevButton" maxWidth="150.0" minWidth="150.0" mnemonicParsing="false" onAction="#about" prefWidth="150.0" text="ABOUT" />
+            <ScrollPane fx:id="propertyPane" minWidth="150.0" prefHeight="200.0" prefWidth="150.0">
+               <content>
+                  <VBox fx:id="propertyBar" prefHeight="200.0" prefWidth="140.0" />
+               </content>
+            </ScrollPane>
          </children>
       </VBox>
-      <AnchorPane fx:id="absolutePane" minHeight="595.0" minWidth="445.0" prefHeight="595.0" prefWidth="445.0" style="-fx-background-color: black;" stylesheets="@../style/darkStyle.css">
+      <AnchorPane fx:id="absolutePane" minHeight="560.0" minWidth="445.0" prefHeight="560.0" prefWidth="445.0" style="-fx-background-color: black;" stylesheets="@../style/darkStyle.css">
          <children>
             <Button fx:id="hBtn" layoutX="-34.0" layoutY="283.0" maxWidth="159.0" mnemonicParsing="false" onAction="#hide" prefHeight="33.0" prefWidth="25.0" style="-fx-border-radius: 50;" />
          </children></AnchorPane>
