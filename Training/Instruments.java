@@ -15,7 +15,7 @@ public class Instruments {
         String s = scanner.nextLine();
         switch (s){
             case "Percussion": {
-                System.out.println("Pls, enter sing....");
+                System.out.println("Pls, enter song....");
                 String song = scanner.nextLine();
                 instrument = new Percussion(song);
                 sing();
