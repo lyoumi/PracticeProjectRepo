@@ -24,14 +24,8 @@ class DiceRoll implements Game{
     public Integer go() {
         return random.nextInt(6);
     }
-}
 
-class DiceRollFactory implements GameFactory{
-
-    @Override
-    public Game getGame() {
-        return new DiceRoll();
-    }
+    static GameFactory gameFactory = DiceRoll::new;
 }
 
 class CoinToss implements Game{
@@ -53,14 +47,10 @@ class CoinToss implements Game{
         }
         return s;
     }
+
+    static GameFactory gameFactory = CoinToss::new;
 }
 
-class CoinTossFactory implements GameFactory{
-    @Override
-    public Game getGame() {
-        return new CoinToss();
-    }
-}
 
 public class Games {
 
@@ -74,17 +64,20 @@ public class Games {
     public static void main(String[] args) {
         System.out.println("Choose game: 1 - dice, 2 - coin....");
         int i;
-        do{
+        label:
+        do {
             i = scanner.nextInt();
-            if (i == 1) {
-                Games.doIt(new DiceRollFactory());
-                break;
-            } else if (i == 2) {
-                Games.doIt(new CoinTossFactory());
-                break;
-            } else {
-                System.out.println("Pls, enter another value....");
+            switch (i) {
+                case 1:
+                    Games.doIt(DiceRoll.gameFactory);
+                    break label;
+                case 2:
+                    Games.doIt(CoinToss.gameFactory);
+                    break label;
+                default:
+                    System.out.println("Pls, enter another getRange....");
+                    break;
             }
-        }while (true);
+        } while (true);
     }
 }
