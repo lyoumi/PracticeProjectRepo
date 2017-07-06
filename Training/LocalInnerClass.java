@@ -5,7 +5,7 @@ import java.util.Scanner;
 /**
  * Created by pikachu on 06.07.17.
  */
-public class Parcel {
+public class LocalInerClass {
 
     private static Scanner scanner = new Scanner(System.in);
 
@@ -36,12 +36,12 @@ public class Parcel {
     }
 
     public static void main(String[] args) {
-        Parcel parcel = new Parcel();
+        LocalInnerClass localInnerClass = new LocalInnerClass();
         System.out.println("Enter destination....");
         String dest = scanner.nextLine();
         System.out.println("Pls, enter range....");
         int range = scanner.nextInt();
-        parcel.ship(dest, range);
+        localInnerClass.ship(dest, range);
     }
 
 }
