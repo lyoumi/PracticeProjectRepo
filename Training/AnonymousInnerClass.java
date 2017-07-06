@@ -5,7 +5,7 @@ import java.util.Scanner;
 /**
  * Created by pikachu on 06.07.17.
  */
-public class AnonymousInerClass {
+public class AnonymousInnerClass {
 
     private static Scanner scanner = new Scanner(System.in);
 
@@ -36,12 +36,12 @@ public class AnonymousInerClass {
     }
 
     public static void main(String[] args) {
-        AnonymousInerClass anonymousInerClass = new AnonymousInerClass();
+        AnonymousInnerClass anonymousInerClass = new AnonymousInnerClass();
         System.out.println("Enter destination....");
         String dest = scanner.nextLine();
         System.out.println("Pls, enter range....");
         int range = scanner.nextInt();
-        anonymousInerClass.ship(dest, range);
+        anonymousInnerClass.ship(dest, range);
     }
 
 }
