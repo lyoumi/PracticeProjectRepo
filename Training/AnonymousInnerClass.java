@@ -5,29 +5,29 @@ import java.util.Scanner;
 /**
  * Created by pikachu on 06.07.17.
  */
-public class LocalInerClass {
+public class AnonymousInerClass {
 
     private static Scanner scanner = new Scanner(System.in);
 
-    class Contents implements Training.Contents{
-        private int range;
-        Contents(int range){
-            this.range = range;
-        }
-        public int getRange(){return range;}
+    private Destination to(String s){
+        return new Destination(){
+            private String label;
+            {
+                label = s;
+            }
+            public String readLabel(){return label;}
+        };
     }
 
-    class Destination implements Training.Destination{
-        private String label;
-        Destination(String s){
-            label = s;
-        }
-        public String readLabel(){return label;}
+    private Contents contents(int r){
+        return new Contents(){
+            private int range;
+            {
+                range = r;
+            }
+            public int getRange(){return range;}
+        };
     }
-
-    private Destination to(String s){return new Destination(s);}
-
-    private Contents contents(int range){return new Contents(range);}
 
     private void ship(String dest, int range){
         Contents contents = contents(range);
@@ -36,12 +36,12 @@ public class LocalInerClass {
     }
 
     public static void main(String[] args) {
-        LocalInnerClass localInnerClass = new LocalInnerClass();
+        AnonymousInerClass anonymousInerClass = new AnonymousInerClass();
         System.out.println("Enter destination....");
         String dest = scanner.nextLine();
         System.out.println("Pls, enter range....");
         int range = scanner.nextInt();
-        localInnerClass.ship(dest, range);
+        anonymousInerClass.ship(dest, range);
     }
 
 }
