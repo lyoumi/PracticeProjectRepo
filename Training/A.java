@@ -71,7 +71,6 @@ class B{
                     B.iterateReferences();
                     break;
                 }
-                case 0: break;
                 default: break;
             }
         }while (k!=0);
