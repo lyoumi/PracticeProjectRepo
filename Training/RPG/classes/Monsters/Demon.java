@@ -20,7 +20,7 @@ public class Demon implements Monster {
 
     public Demon(int level){
         hitPoint = (level+1)*50;
-        damage = (level+1)*10;
+        damage = (level+1)*6;
     }
 
     public int getExperience(){
