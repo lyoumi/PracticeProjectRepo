@@ -1,6 +1,5 @@
 package Training.RPG.classes.Characters;
 
-import Training.RPG.classes.Characters.Human;
 import Training.RPG.classes.Items.Items;
 
 import java.util.List;
@@ -20,10 +19,6 @@ public class Wizard implements Human {
 
     public void changeLevel(){
         if (experience == ((level+1)*100)) level++;
-    }
-
-    public int getDamage() {
-        return damage;
     }
 
     public int getAgility() {
@@ -55,7 +50,7 @@ public class Wizard implements Human {
     }
 
     @Override
-    public int damage() {
+    public int getDamage() {
         return 0;
     }
 
@@ -75,12 +70,27 @@ public class Wizard implements Human {
     }
 
     @Override
-    public List<Items> inventory() {
+    public List<Items> getInventory() {
         return null;
     }
 
     @Override
     public int getLevel() {
+        return 0;
+    }
+
+    @Override
+    public double getExperience() {
+        return 0;
+    }
+
+    @Override
+    public void setExperience(double experience) {
+
+    }
+
+    @Override
+    public double expToNextLevel() {
         return 0;
     }
 }

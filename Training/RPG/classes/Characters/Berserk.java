@@ -21,10 +21,6 @@ public class Berserk implements Human {
         if (experience == ((level+1)*100)) level++;
     }
 
-    public int getDamage() {
-        return damage;
-    }
-
     public void setDamage(int damage) {
         this.damage = damage;
     }
@@ -54,7 +50,7 @@ public class Berserk implements Human {
     }
 
     @Override
-    public int damage() {
+    public int getDamage() {
         return 0;
     }
 
@@ -74,12 +70,27 @@ public class Berserk implements Human {
     }
 
     @Override
-    public List<Items> inventory() {
+    public List<Items> getInventory() {
         return null;
     }
 
     @Override
     public int getLevel() {
+        return 0;
+    }
+
+    @Override
+    public double getExperience() {
+        return 0;
+    }
+
+    @Override
+    public void setExperience(double experience) {
+
+    }
+
+    @Override
+    public double expToNextLevel() {
         return 0;
     }
 }
