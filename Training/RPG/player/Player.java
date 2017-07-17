@@ -1,10 +1,12 @@
-package Training.RPG.player;
+package RPG.player;
 
-import Training.RPG.classes.Characters.*;
-import Training.RPG.classes.Items.Items;
-import Training.RPG.classes.Items.UsingItems;
-import Training.RPG.classes.Monsters.Demon;
-import Training.RPG.classes.Monsters.Monster;
+import RPG.classes.Characters.*;
+import RPG.classes.Items.Equipment;
+import RPG.classes.Items.Items;
+import RPG.classes.Items.UsingItems;
+import RPG.classes.Items.items.Item;
+import RPG.classes.Monsters.Demon;
+import RPG.classes.Monsters.Monster;
 
 import java.io.IOException;
 import java.util.*;
@@ -44,10 +46,10 @@ public class Player {
                 System.err.println("YOU ARE DEAD");
                 break;
             } else if (monster.getHitPoint() <= 0) {
-                drop(human, monster);
+                drop(human, monster, false);
             }
             System.out.println(resultOfBattle);
-            System.out.println("What's next? 1 - use items, 2 - walking, 3 - break adventures, default to continue....");
+            System.out.println("What's next? 1 - use items, 2 - walking, 3 - break adventures, 4 - go to auto-battle, default to continue....");
             switch (scanner.nextInt()) {
                 case 1: {
                     useItem(human);
@@ -59,6 +61,10 @@ public class Player {
                     break;
                 }
                 case 3: break adventure;
+                case 4: {
+                    autoBattle(human);
+                    break;
+                }
                 default: break;
             }
         }
@@ -82,8 +88,47 @@ public class Player {
                 System.out.println("I found " + item);
                 human.getInventory().add(item);
             }
+            if (human.getInventory().size() > ((human.getLevel()+1)*10)) break;
         }
         return "The walk is over. Your stats: " + human;
+    }
+
+    private void autoBattle(Human human) throws IOException {
+        while (System.in.available()==0){
+//            System.err.println(human.getInventory().size());
+            if (human.getInventory().size() < 10) {
+                System.out.println("I need go walk.... Pls, wait some time, I will be back\n" + human);
+                String walkingResults = walking(human);
+                System.out.println(walkingResults);
+            }
+
+            Monster monster = new Demon(human.getLevel());
+            while ((human.getHitPoint() > 0) && (monster.getHitPoint() > 0)){
+                if ((human.getHitPoint() > 50) && (human.getHitPoint() < 80) && (human.getInventory().contains(Items.SmallHPBottle))) {
+                    ((UsingItems)human).use(Items.SmallHPBottle);
+                    System.out.println(human);
+                }
+                if ((human.getHitPoint() > 30) && (human.getHitPoint() < 50) && (human.getInventory().contains(Items.MiddleHPBottle))) {
+                    ((UsingItems)human).use(Items.MiddleHPBottle);
+                    System.out.println(human);
+                }
+                if ((human.getHitPoint() > 0) && (human.getHitPoint() < 30) && (human.getInventory().contains(Items.BigHPBottle))) {
+                    ((UsingItems)human).use(Items.BigHPBottle);
+                    System.out.println(human);
+                }
+                monster.setHitPoint((monster.getHitPoint() - monster.applyDamage(human.getDamage())));
+                human.setHitPoint((human.getHitPoint() - human.applyDamage(monster.damage())));
+            }
+            human.getInventory().trimToSize();
+
+            if (human.getHitPoint() <= 0) {
+                System.err.println("YOU ARE DEAD");
+                System.exit(0);
+            } else if (monster.getHitPoint() <= 0) {
+                drop(human, monster, true);
+            }
+
+        }
     }
 
     /**
@@ -134,11 +179,24 @@ public class Player {
      * @param human
      * @param monster
      */
-    private void drop(Human human, Monster monster) {
-        human.setExperience(monster.getExperience());
-        human.changeLevel();
-        System.out.println("You can add to your getInventory " + monster.getInventory());
-        if (scanner.nextInt() == 1) ((Archer) human).add(monster.getInventory().pollLast());
+    private void drop(Human human, Monster monster, boolean autoDrop) {
+        if (autoDrop){
+
+            human.setExperience(monster.getExperience());
+            human.changeLevel();
+            ((UsingItems) human).add(monster.getInventory().pollLast());
+            ((Equipment)human).equip(monster.getDroppedItems());
+
+        } else{
+
+            human.setExperience(monster.getExperience());
+            System.out.println("You can add to your getInventory " + monster.getInventory());
+            if (scanner.nextInt() == 1) ((UsingItems) human).add(monster.getInventory().pollLast());
+
+            Item droppedItems = monster.getDroppedItems();
+            System.out.println("Weapons " + droppedItems);
+            if (scanner.nextInt() == 1) ((Equipment)human).equip(droppedItems);
+        }
     }
 
     /**
