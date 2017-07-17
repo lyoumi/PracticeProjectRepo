@@ -1,9 +1,9 @@
-package Training.RPG.classes.Monsters;
+package RPG.classes.Monsters;
 
-import Training.RPG.classes.Items.Items;
+import RPG.classes.Items.Items;
+import RPG.classes.Items.items.Item;
 
 import java.util.LinkedList;
-import java.util.List;
 
 /**
  * Created by pikachu on 13.07.17.
@@ -15,4 +15,5 @@ public interface Monster {
     int getHitPoint();
     void setHitPoint(int hitPoint);
     LinkedList<Items> getInventory();
+    public Item getDroppedItems();
 }
