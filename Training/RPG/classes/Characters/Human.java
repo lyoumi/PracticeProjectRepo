@@ -1,13 +1,16 @@
-package Training.RPG.classes.Characters;
+package RPG.classes.Characters;
 
-import Training.RPG.classes.Items.Items;
+import RPG.classes.Items.Items;
 
-import java.util.List;
+import java.util.ArrayList;
 
 /**
  * Created by pikachu on 13.07.17.
  */
 public interface Human {
+
+    int getDefence();
+
     int getDamage();
 
     int applyDamage(int damage);
@@ -16,7 +19,7 @@ public interface Human {
 
     void setHitPoint(int hitPoint);
 
-    List<Items> getInventory();
+    ArrayList<Items> getInventory();
 
     int getLevel();
 
