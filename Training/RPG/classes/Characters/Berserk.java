@@ -1,8 +1,9 @@
-package Training.RPG.classes.Characters;
+package RPG.classes.Characters;
 
-import Training.RPG.classes.Items.Items;
+import RPG.classes.Items.Items;
+import RPG.classes.abilities.Magic;
 
-import java.util.List;
+import java.util.ArrayList;
 
 /**
  * Created by pikachu on 13.07.17.
@@ -17,8 +18,9 @@ public class Berserk implements Human {
     private int experience = 0;
     private int level = 0;
 
-    public void changeLevel(){
+    public boolean changeLevel(){
         if (experience == ((level+1)*100)) level++;
+        return true;
     }
 
     public void setDamage(int damage) {
@@ -41,12 +43,44 @@ public class Berserk implements Human {
         this.intelligence = intelligence;
     }
 
+    @Override
+    public boolean setMana(int mana) {
+        return true;
+    }
+
+    @Override
+    public int getMagic(Magic magic) {
+        return 0;
+    }
+
     public int getPower() {
         return power;
     }
 
     public void setPower(int power) {
         this.power = power;
+    }
+
+    public int getMultiplierAgility() {
+        return 0;
+    }
+
+    public int getMultiplierPower() {
+        return 0;
+    }
+
+    public int getMultiplierIntelligence() {
+        return 0;
+    }
+
+    @Override
+    public int getManaPoint() {
+        return 0;
+    }
+
+    @Override
+    public int getDefence() {
+        return 0;
     }
 
     @Override
@@ -70,7 +104,7 @@ public class Berserk implements Human {
     }
 
     @Override
-    public List<Items> getInventory() {
+    public ArrayList<Items> getInventory() {
         return null;
     }
 

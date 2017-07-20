@@ -1,7 +1,10 @@
 package RPG.classes.Items.items.armors.boots;
 
+import RPG.classes.Characters.Human;
 import RPG.classes.Items.EquipmentItems;
 import RPG.classes.Items.items.armors.Armor;
+import RPG.classes.abilities.Magic;
+import RPG.classes.abilities.buffs.buffs.ArchersBuff;
 
 /**
  * Created by pikachu on 17.07.17.
@@ -10,10 +13,14 @@ public class IronBoots implements Armor{
 
     private int defence;
     private int itemLevel;
+    private Magic magic;
+    Human human;
 
-    public IronBoots(int itemLevel){
-        this.itemLevel = itemLevel;
+    public IronBoots(Human human){
+        this.human = human;
+        this.itemLevel = human.getLevel() + 1;
         this.defence = getItemLevel() * 10 + 5;
+        this.magic = ArchersBuff.getMagic(human);
     }
 
     @Override
@@ -34,6 +41,11 @@ public class IronBoots implements Armor{
     @Override
     public String getName() {
         return IronBoots.class.getSimpleName();
+    }
+
+    @Override
+    public Magic getMagic() {
+        return magic;
     }
 
     @Override

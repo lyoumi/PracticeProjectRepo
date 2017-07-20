@@ -1,7 +1,7 @@
-package Training.RPG.classes.Items;
+package RPG.classes.Items;
 
-import Training.RPG.classes.Characters.Human;
-import Training.RPG.classes.Monsters.Monster;
+import RPG.classes.Characters.Human;
+import RPG.classes.Monsters.Monster;
 
 /**
  * Created by pikachu on 14.07.17.

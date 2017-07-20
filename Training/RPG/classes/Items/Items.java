@@ -1,4 +1,4 @@
-package Training.RPG.classes.Items;
+package RPG.classes.Items;
 
 /**
  * Created by pikachu on 14.07.17.
@@ -6,5 +6,8 @@ package Training.RPG.classes.Items;
 public enum Items {
     SmallHPBottle,
     MiddleHPBottle,
-    BigHPBottle
+    BigHPBottle,
+    SmallFlower,
+    MiddleFlower,
+    BigFlower
 }

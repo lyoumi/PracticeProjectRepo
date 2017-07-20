@@ -1,6 +1,7 @@
 package RPG.classes.Characters;
 
 import RPG.classes.Items.Items;
+import RPG.classes.abilities.Magic;
 
 import java.util.ArrayList;
 
@@ -8,6 +9,8 @@ import java.util.ArrayList;
  * Created by pikachu on 13.07.17.
  */
 public interface Human {
+
+    int getManaPoint();
 
     int getDefence();
 
@@ -29,8 +32,6 @@ public interface Human {
 
     double expToNextLevel();
 
-    void changeLevel();
-
     void setDamage(int damage);
 
     int getAgility();
@@ -40,6 +41,10 @@ public interface Human {
     int getIntelligence();
 
     void setIntelligence(int intelligence);
+
+    boolean setMana(int mana);
+
+    int getMagic(Magic magic);
 
     int getPower();
 

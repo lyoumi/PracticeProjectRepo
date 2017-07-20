@@ -9,17 +9,16 @@ import RPG.classes.abilities.buffs.buffs.ArchersBuff;
 /**
  * Created by pikachu on 17.07.17.
  */
-public class Sword implements Weapons {
-
+public class Bow implements Weapons {
     private int damage;
-    private int level;
+    private int itemLevel;
     private Human human;
     private Magic magic;
 
-    public Sword(Human human){
+    public Bow(Human human){
         this.human = human;
-        this.level = human.getLevel() + 1;
-        this.damage = this.getLevel() * 10 + 5;
+        this.itemLevel = human.getLevel();
+        this.damage = getLevel() * 10 + 5;
         this.magic = ArchersBuff.getMagic(human);
     }
 
@@ -29,26 +28,27 @@ public class Sword implements Weapons {
     }
 
     @Override
+    public EquipmentItems EQUIPMENT_ITEMS() {
+        return EquipmentItems.HANDS;
+    }
+
+    @Override
     public int getDamage() {
         return damage;
     }
 
     @Override
     public int getLevel() {
-        return level;
-    }
-
-    @Override
-    public EquipmentItems EQUIPMENT_ITEMS() {
-        return EquipmentItems.HANDS;
+        return itemLevel;
     }
 
     @Override
     public String getName() {
-        return Sword.class.getSimpleName();
+        return Bow.class.getSimpleName();
     }
 
+    @Override
     public String toString(){
-        return Sword.class.getSimpleName() + ": ATK +" + getDamage();
+        return Bow.class.getSimpleName() + ": " + " ATK +" + getDamage();
     }
 }
